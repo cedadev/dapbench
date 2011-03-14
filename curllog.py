@@ -8,6 +8,8 @@ import re
 import sys
 import urllib
 
+import numpy
+
 class DapRequest(object):
     def __init__(self, dataset, response, projection, subset):
         self.response = response
@@ -75,18 +77,13 @@ class DapStats(object):
         rlist = ds_stat.setdefault(resp, [])
         rlist.append(request)
 
-        if request.response == 'das':
-            ds_stat['das'] += 1
-        elif request.response == 'dds':
-            ds_stat['dds'] += 1
-        elif request.response == 'dods':
-            ds_stat['dods'].append(request)
-        else:
-            ds_stat['?'].append(request)
+        ds_stats[resp].append(request)
+
             
     def update(self, requests):
         for request in requests:
             self.add_req(request)
+
 
 def iter_requests(fh):
     for line in fh:
