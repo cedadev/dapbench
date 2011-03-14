@@ -11,7 +11,7 @@ from subprocess import Popen, PIPE
 import re
 import urllib
 
-from curllog import DapRequest, DapStats
+from dap_request import DapRequest, DapStats
 
 TMP_PREFIX='record_dap-'
 DODSRC = '.dodsrc'
