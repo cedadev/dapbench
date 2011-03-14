@@ -4,7 +4,7 @@ Catalogs the test data available on esg-dev1.
 """
 
 DAP_BASES = [
-    'http://esg-dev1.badc.rl.ac.uk:8081',
+    'http://esg-dev1.badc.rl.ac.uk:8081/ta_20101129',
     'http://esg-dev1.badc.rl.ac.uk:8080/thredds/dodsC/test_data',
     'http://esg-dev1.badc.rl.ac.uk:8080/opendap/ta_20101129',
     ]
