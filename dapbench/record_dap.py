@@ -11,7 +11,8 @@ from subprocess import Popen, PIPE
 import re
 import urllib
 
-from dap_request import DapRequest, DapStats
+from dapbench.dap_request import DapRequest
+from dapbench.dap_stats import DapStats
 
 TMP_PREFIX='record_dap-'
 DODSRC = '.dodsrc'
