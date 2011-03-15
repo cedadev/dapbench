@@ -70,8 +70,8 @@ class DapStatsCursor(object):
         return len(list(self._iter_response(response)))
 
     def response_tmean(self, response):
-        ts = (end - start for start, end, req 
-              in self._iter_response(response))
+        ts = [end - start for start, end, req 
+              in self._iter_response(response)]
         return numpy.mean(ts)
 
     def response_hist(self, response, bins=10):
