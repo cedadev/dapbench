@@ -19,12 +19,13 @@ DODSRC = '.dodsrc'
 LOGFILE = 'record_dap.log'
 
 class Wrapper(object):
-    def __init__(self, tmpdir=None):
+    def __init__(self, tmpdir=None, stat_storage=None):
         if tmpdir is None:
             tmpdir = tempfile.mkdtemp(prefix=TMP_PREFIX)
         self.tmpdir = tmpdir
         self.dodsrc = os.path.join(self.tmpdir, DODSRC)
         self.logfile = os.path.join(self.tmpdir, LOGFILE)
+        self._stat_storage = storage
 
     def config_environment(self):
         os.environ['HOME'] = self.tmpdir
@@ -42,7 +43,7 @@ CURL.VERBOSE=1
         pipe = Popen(cmd, shell=True, stderr=PIPE, 
                      stdout=open('/dev/null')).stderr
 
-        return DapStats(self.iter_requests(pipe))
+        return DapStats(self.iter_requests(pipe), storage=self._stat_storage)
 
     def iter_requests(self, pipe):
         timestamp = None
@@ -69,11 +70,13 @@ CURL.VERBOSE=1
 
 
 if __name__ == '__main__':
-    #test_dataset = 'http://esg-dev1.badc.rl.ac.uk:8081/ta_20101129/ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc'
-    w = Wrapper('.')
-    stats = w.call('cdo runmean,20 http://esg-dev1.badc.rl.ac.uk:8080/opendap/ta_20101129/ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc out.nc')
-    ds_stats = stats.get_cursor()
+    import shelve
+    storage = shelve.open('./dap_stats', 'c')
 
-    print ds_stats
+    #test_dataset = 'http://esg-dev1.badc.rl.ac.uk:8081/ta_20101129/ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc'
+    w = Wrapper('.', stat_storage=storage)
+    stats = w.call('cdo runmean,10 http://esg-dev1.badc.rl.ac.uk:8080/opendap/ta_20101129/ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc out.nc')
+
+
 
 

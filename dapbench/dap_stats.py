@@ -11,8 +11,11 @@ class DapStats(object):
     """
 
 
-    def __init__(self, timed_requests=None):
-        self.datasets = {}
+    def __init__(self, timed_requests=None, storage=None):
+        if storage is None:
+            storage = {}
+
+        self.datasets = storage
 
         self.last_timestamp = None
         self.last_request = None
@@ -75,8 +78,8 @@ class DapStatsCursor(object):
         return numpy.mean(ts)
 
     def response_hist(self, response, bins=10):
-        ts = (end - start for start, end, req
-              in self._iter_response(response))
+        ts = [end - start for start, end, req
+              in self._iter_response(response)]
         return numpy.histogram(ts, bins=bins)
 
     def _iter_response(self, response):
