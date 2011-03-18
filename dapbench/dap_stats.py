@@ -57,8 +57,9 @@ class DapStats(object):
 
     def _unstage_req(self, timestamp):
         # Add the last request
-        ds_stat = self.datasets.setdefault(self.last_request.dataset, [])
-        ds_stat.append((self.last_timestamp, timestamp, self.last_request))
+        if self.last_request:
+            ds_stat = self.datasets.setdefault(self.last_request.dataset, [])
+            ds_stat.append((self.last_timestamp, timestamp, self.last_request))
 
 
     def print_summary(self, fh=sys.stdout):

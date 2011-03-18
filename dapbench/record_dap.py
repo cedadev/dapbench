@@ -32,7 +32,7 @@ class Wrapper(object):
             rcpath = os.path.join(os.environ['HOME'], DODSRC)
             assert os.path.exists(rcpath)
             rcdata = open(rcpath).read()
-            mo = re.search(r'^\s*CURL.VERBOSE\s*=\s*1', re.M)
+            mo = re.search(r'^\s*CURL.VERBOSE\s*=\s*1', rcdata, re.M)
             assert mo
         except AssertionError:
             raise Exception("~/.dodsrc doesn't have CURL.VERBOSE defined")
@@ -77,7 +77,7 @@ class Wrapper(object):
 def make_parser():
     import optparse
     
-    usage = "%prog [options] command"
+    usage = "%prog [options] [--] command"
     parser = optparse.OptionParser(usage=usage)
     parser.add_option('-s', '--shelve', action="store",
                       help="Store captured events in shelve file SHELVE")
