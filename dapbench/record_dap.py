@@ -23,23 +23,28 @@ class Wrapper(object):
         if tmpdir is None:
             tmpdir = tempfile.mkdtemp(prefix=TMP_PREFIX)
         self.tmpdir = tmpdir
-        self.dodsrc = os.path.join(self.tmpdir, DODSRC)
         self.logfile = os.path.join(self.tmpdir, LOGFILE)
         self._stat_storage = storage
 
-    def config_environment(self):
-        os.environ['HOME'] = self.tmpdir
 
-    def write_dodsrc(self):
-        #!TODO: not suitable for secured opendap yet.
-        fh = open(self.dodsrc)
-        fh.write("""
-DEFLATE=0
-CURL.VERBOSE=1
-""")
+    def check_dodsrc(self):
+        try:
+            rcpath = os.path.join(os.environ['HOME'], DODSRC)
+            assert os.path.exists(rcpath)
+            rcdata = open(rcpath).read()
+            mo = re.search(r'^\s*CURL.VERBOSE\s*=\s*1', re.M)
+            assert mo
+        except AssertionError:
+            raise Exception("~/.dodsrc doesn't have CURL.VERBOSE defined")
 
     def call(self, command):
-        cmd = 'strace -ttt -f -e trace=network %s' % command
+        self.check_dodsrc()
+        
+        if type(command) == str:
+            command = command.split()
+
+        cmd = ['strace -ttt -f -e trace=network'] + command
+        # Do we really want to squash stdout?
         pipe = Popen(cmd, shell=True, stderr=PIPE, 
                      stdout=open('/dev/null')).stderr
 
@@ -69,14 +74,37 @@ CURL.VERBOSE=1
         yield (timestamp, None)
 
 
+def make_parser():
+    import optparse
+    
+    usage = "%prog [options] command"
+    parser = optparse.OptionParser(usage=usage)
+    parser.add_option('-s', '--shelve', action="store",
+                      help="Store captured events in shelve file SHELVE")
+
+    return parser
+
 if __name__ == '__main__':
     import shelve
-    storage = shelve.open('./dap_stats', 'c')
+
+    parser = make_parser()
+    
+    opts, args = parser.parse_args()
+    
+    if not args:
+        parser.error("No command specified")
+    
+    if opts.shelve:
+        storage = shelve.open(opts.shelve)
+    else:
+        storage = None
+
+    w = Wrapper('.', storage)
+    stats = w.call(args)
+    stats.print_summary()
+
+    if storage:
+        storage.close()
 
     #test_dataset = 'http://esg-dev1.badc.rl.ac.uk:8081/ta_20101129/ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc'
-    w = Wrapper('.', stat_storage=storage)
-    stats = w.call('cdo runmean,10 http://esg-dev1.badc.rl.ac.uk:8080/opendap/ta_20101129/ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc out.nc')
-
-
-
-
+    #stats = w.call('cdo runmean,10 http://esg-dev1.badc.rl.ac.uk:8080/opendap/ta_20101129/ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc out.nc')

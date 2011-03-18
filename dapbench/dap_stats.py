@@ -3,6 +3,7 @@ Statistics on dap requests
 """
 
 import numpy
+import sys
 
 class DapStats(object):
     """
@@ -60,6 +61,10 @@ class DapStats(object):
         ds_stat.append((self.last_timestamp, timestamp, self.last_request))
 
 
+    def print_summary(self, fh=sys.stdout):
+        for ds in self.datasets:
+            print '%s: %d' % ds, len(self.datasets[ds])
+        print
 
 class DapStatsCursor(object):
     """
