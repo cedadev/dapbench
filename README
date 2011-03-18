@@ -1,0 +1,17 @@
+==========================================================
+dapbench - A OPeNDAP client and server profiling framework
+==========================================================
+
+Author: Stephen Pascoe <Stephen.Pascoe@stfc.ac.uk>
+
+WARNING: this is pre-alpha code
+
+The intention is to develop a method of:
+
+1. Capturing OPeNDAP requests made through the NetCDF4-API by any
+high-level tool and producing statistics on request size, frequency
+and timespan.
+
+2. Simulate multiple users interacting with a server over OPeNDAP and
+gather statistics.
+
