@@ -16,14 +16,12 @@ from dapbench.dap_stats import DapStats
 
 TMP_PREFIX='record_dap-'
 DODSRC = '.dodsrc'
-LOGFILE = 'record_dap.log'
 
 class Wrapper(object):
     def __init__(self, tmpdir=None):
         if tmpdir is None:
             tmpdir = tempfile.mkdtemp(prefix=TMP_PREFIX)
         self.tmpdir = tmpdir
-        self.logfile = os.path.join(self.tmpdir, LOGFILE)
 
 
     def check_dodsrc(self):
@@ -39,6 +37,7 @@ class Wrapper(object):
     def call(self, command):
         self.check_dodsrc()
         
+        os.chdir(self.tmpdir)
         cmd = 'strace -ttt -f -e trace=network %s' % command
         pipe = Popen(cmd, shell=True, stderr=PIPE).stderr
 
@@ -75,6 +74,9 @@ def make_parser():
     parser = optparse.OptionParser(usage=usage)
     parser.add_option('-s', '--stats', action="store", 
                       help="Store stats in the pickle file STATS")
+    parser.add_option('-d', '--dir', action='store',
+                      default='.',
+                      help="Execute in directory DIR")
 
     return parser
 
@@ -89,7 +91,7 @@ def main(argv=sys.argv):
         parser.error("No command specified")
     
 
-    w = Wrapper('.', storage)
+    w = Wrapper(opts.dir, storage)
     command = ' '.join(args)
     stats = w.call(command)
     stats.print_summary()
