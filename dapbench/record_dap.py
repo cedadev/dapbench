@@ -24,7 +24,7 @@ class Wrapper(object):
             tmpdir = tempfile.mkdtemp(prefix=TMP_PREFIX)
         self.tmpdir = tmpdir
         self.logfile = os.path.join(self.tmpdir, LOGFILE)
-        self._stat_storage = storage
+        self._stat_storage = stat_storage
 
 
     def check_dodsrc(self):
@@ -84,7 +84,7 @@ def make_parser():
 
     return parser
 
-if __name__ == '__main__':
+def main(argv=sys.argv):
     import shelve
 
     parser = make_parser()
@@ -105,6 +105,10 @@ if __name__ == '__main__':
 
     if storage:
         storage.close()
+
+
+if __name__ == '__main__':
+    main()
 
     #test_dataset = 'http://esg-dev1.badc.rl.ac.uk:8081/ta_20101129/ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc'
     #stats = w.call('cdo runmean,10 http://esg-dev1.badc.rl.ac.uk:8080/opendap/ta_20101129/ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc out.nc')

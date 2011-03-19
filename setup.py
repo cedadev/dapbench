@@ -22,5 +22,7 @@ setup(name='dapbench',
       ],
       entry_points="""
       # -*- Entry points: -*-
+      [console_scripts]
+      record_dap = dapbench.record_dap:main
       """,
       )
