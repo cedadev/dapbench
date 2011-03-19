@@ -61,7 +61,18 @@ class DapStats(object):
 
     def print_summary(self, fh=sys.stdout):
         for ds in self.datasets:
-            print '%s: %d' % (ds, len(self.datasets[ds]))
+            print '#'*78
+            print '  %s' % ds
+            print
+            c = self.get_cursor(ds)
+
+            print 'Resp.\tCount\tTMean\tSMean'
+            print
+            for resp in ['das', 'dds', 'dods']:
+                count = c.response_count(resp)
+                tmean = c.response_tmean(resp)
+                smean = c.response_smean(resp)
+                print '%s\t%d\t%f\t%d' % (resp, count, tmean, smean)
         print
 
 class DapStatsCursor(object):
@@ -79,6 +90,10 @@ class DapStatsCursor(object):
         ts = [end - start for start, end, req 
               in self._iter_response(response)]
         return numpy.mean(ts)
+
+    def response_smean(self, response):
+        ss = [req.size() for start, end, req in self._iter_response(response)]
+        return numpy.mean(ss)
 
     def response_hist(self, response, bins=10):
         ts = [end - start for start, end, req

@@ -16,6 +16,7 @@ class DapRequest(object):
     def __str__(self):
         return '<DapRequest %s %s %s>' % (self.response, self.projection, self.subset)
 
+    #!FIXME: variable requests without subset will be wrong!
     def size(self):
         if not self.subset:
             return 0
