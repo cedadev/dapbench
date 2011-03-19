@@ -14,6 +14,9 @@ import urllib
 from dapbench.dap_request import DapRequest
 from dapbench.dap_stats import DapStats
 
+import logging
+log = logging.getLogger(__name__)
+
 TMP_PREFIX='record_dap-'
 DODSRC = '.dodsrc'
 
@@ -31,6 +34,7 @@ class Wrapper(object):
             rcdata = open(rcpath).read()
             mo = re.search(r'^\s*CURL.VERBOSE\s*=\s*1', rcdata, re.M)
             assert mo
+            log.debug('CURL.VERBOSE=1 confirmed')
         except AssertionError:
             raise Exception("~/.dodsrc doesn't have CURL.VERBOSE defined")
 
@@ -39,6 +43,8 @@ class Wrapper(object):
         
         os.chdir(self.tmpdir)
         cmd = 'strace -ttt -f -e trace=network %s' % command
+        log.info('Executing traced command: %s' % command)
+        log.debug('Full command: %s' % cmd)
         pipe = Popen(cmd, shell=True, stderr=PIPE).stderr
 
         return DapStats(self.iter_requests(pipe))
@@ -50,10 +56,12 @@ class Wrapper(object):
             mo = re.match('\* Connected to ([^\s]+)', line)
             if mo:
                 host = mo.group(1)
+                log.info('New Connection: %s' % host)
             elif re.match('> GET ', line):
                 #!TODO: handle other stderr output from wrapped tool
                 req = urllib.unquote(line.strip()[2:])
                 request = DapRequest.from_get(host, req)
+                log.info('Request: %s %s' % (timestamp, request))
                 assert timestamp is not None
                 yield (timestamp, request)
                 timestamp = None
@@ -64,6 +72,7 @@ class Wrapper(object):
                     timestamp = float(timestamp)
 
         # Mark terminal event
+        log.info('End: %s' % timestamp)
         yield (timestamp, None)
 
 
@@ -77,6 +86,9 @@ def make_parser():
     parser.add_option('-d', '--dir', action='store',
                       default='.',
                       help="Execute in directory DIR")
+    parser.add_option('-l', '--loglevel', action='store',
+                      default='INFO',
+                      help="Set logging level")
 
     return parser
 
@@ -90,14 +102,16 @@ def main(argv=sys.argv):
     if not args:
         parser.error("No command specified")
     
+    loglevel = getattr(logging, opts.loglevel)
+    logging.basicConfig(level=loglevel)
 
-    w = Wrapper(opts.dir, storage)
+    w = Wrapper(opts.dir)
     command = ' '.join(args)
     stats = w.call(command)
     stats.print_summary()
 
     if opts.stats:
-        statfile = open(opt.stats, 'w')
+        statfile = open(opts.stats, 'w')
         pickle.dump(stats, statfile)
         statfile.close()
 

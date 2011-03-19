@@ -13,7 +13,7 @@ class DapStats(object):
 
 
     def __init__(self, timed_requests=None):
-        self.datasets = storage
+        self.datasets = {}
 
         self.last_timestamp = None
         self.last_request = None
