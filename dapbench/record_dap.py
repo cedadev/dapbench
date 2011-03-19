@@ -19,12 +19,11 @@ DODSRC = '.dodsrc'
 LOGFILE = 'record_dap.log'
 
 class Wrapper(object):
-    def __init__(self, tmpdir=None, stat_storage=None):
+    def __init__(self, tmpdir=None):
         if tmpdir is None:
             tmpdir = tempfile.mkdtemp(prefix=TMP_PREFIX)
         self.tmpdir = tmpdir
         self.logfile = os.path.join(self.tmpdir, LOGFILE)
-        self._stat_storage = stat_storage
 
 
     def check_dodsrc(self):
@@ -43,7 +42,7 @@ class Wrapper(object):
         cmd = 'strace -ttt -f -e trace=network %s' % command
         pipe = Popen(cmd, shell=True, stderr=PIPE).stderr
 
-        return DapStats(self.iter_requests(pipe), storage=self._stat_storage)
+        return DapStats(self.iter_requests(pipe))
 
     def iter_requests(self, pipe):
         timestamp = None
@@ -74,13 +73,13 @@ def make_parser():
     
     usage = "%prog [options] [--] command"
     parser = optparse.OptionParser(usage=usage)
-    parser.add_option('-s', '--shelve', action="store",
-                      help="Store captured events in shelve file SHELVE")
+    parser.add_option('-s', '--stats', action="store", 
+                      help="Store stats in the pickle file STATS")
 
     return parser
 
 def main(argv=sys.argv):
-    import shelve
+    import pickle
 
     parser = make_parser()
     
@@ -89,19 +88,16 @@ def main(argv=sys.argv):
     if not args:
         parser.error("No command specified")
     
-    if opts.shelve:
-        storage = shelve.open(opts.shelve)
-    else:
-        storage = None
 
     w = Wrapper('.', storage)
     command = ' '.join(args)
     stats = w.call(command)
     stats.print_summary()
 
-    if storage:
-        storage.close()
-
+    if opts.stats:
+        statfile = open(opt.stats, 'w')
+        pickle.dump(stats, statfile)
+        statfile.close()
 
 if __name__ == '__main__':
     main()

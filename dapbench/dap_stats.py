@@ -12,10 +12,7 @@ class DapStats(object):
     """
 
 
-    def __init__(self, timed_requests=None, storage=None):
-        if storage is None:
-            storage = {}
-
+    def __init__(self, timed_requests=None):
         self.datasets = storage
 
         self.last_timestamp = None
