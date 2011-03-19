@@ -40,13 +40,8 @@ class Wrapper(object):
     def call(self, command):
         self.check_dodsrc()
         
-        if type(command) == str:
-            command = command.split()
-
-        cmd = ['strace -ttt -f -e trace=network'] + command
-        # Do we really want to squash stdout?
-        pipe = Popen(cmd, shell=True, stderr=PIPE, 
-                     stdout=open('/dev/null')).stderr
+        cmd = 'strace -ttt -f -e trace=network %s' % command
+        pipe = Popen(cmd, shell=True, stderr=PIPE).stderr
 
         return DapStats(self.iter_requests(pipe), storage=self._stat_storage)
 
@@ -100,7 +95,8 @@ def main(argv=sys.argv):
         storage = None
 
     w = Wrapper('.', storage)
-    stats = w.call(args)
+    command = ' '.join(args)
+    stats = w.call(command)
     stats.print_summary()
 
     if storage:

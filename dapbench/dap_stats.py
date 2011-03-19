@@ -64,7 +64,7 @@ class DapStats(object):
 
     def print_summary(self, fh=sys.stdout):
         for ds in self.datasets:
-            print '%s: %d' % ds, len(self.datasets[ds])
+            print '%s: %d' % (ds, len(self.datasets[ds]))
         print
 
 class DapStatsCursor(object):
