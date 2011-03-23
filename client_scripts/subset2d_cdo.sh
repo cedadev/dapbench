@@ -21,8 +21,6 @@ outfile=$4
 
 # Extract bbox over all variables then split on variable
 cdo sellonlatbox,$bbox $dataset $TEMP1.nc
-cdo splitname $TEMP1.NC
+cdo selname,$variable $TEMP1.nc $outfile
 
-# Rename selected variable
-mv $TEMP1.$variable.nc $outfile
-rm $TEMP1.*.nc
+rm $TEMP1.nc
