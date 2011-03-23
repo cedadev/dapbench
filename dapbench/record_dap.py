@@ -1,7 +1,23 @@
 #!/usr/bin/env python
+# BSD Licence
+# Copyright (c) 2011, Science & Technology Facilities Council (STFC)
+# All rights reserved.
+#
+# See the LICENSE file in the source distribution of this software for
+# the full license text.
 """
-Execute a programme that makes NetCDF-API OPeNDAP calls capturing
+Execute a programme that makes NetCDF-API OPeNDAP calls, capturing
 request events and timings.
+
+This script uses 2 methods of capturing OPeNDAP requests:
+ 1. It assumes CURL.VERBOSE=1 in ~/.dodsrc
+ 2. It runns the command through "strace" to capture request timings
+
+The result is a dapbench.dap_stats.DapStats object containing all OPeNDAP
+requests made.
+
+WARNING: It is possible to fool record_dap if the wrapped script
+         writes to stderr lines begining "* Connected to" or "> GET"
 
 """
 

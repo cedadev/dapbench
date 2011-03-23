@@ -10,6 +10,7 @@
 Insert a copywrite notice at the top of any python files given as arguments.
 
 """
+#!FIXME: Doesn't work with #! scripts
 
 import datetime
 import os, re, sys
