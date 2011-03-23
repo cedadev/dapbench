@@ -6,7 +6,7 @@
 # See the LICENSE file in the source distribution of this software for
 # the full license text.
 
-# subset_2d_cdo.sh
+# subset_2d_cdat.py
 #
 #
 # Scripts implementing this test should subset a dataset to a given

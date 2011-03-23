@@ -10,8 +10,6 @@
 #
 # where bbox = 'lon0,lon1,lat0,lat1'
 
-set -x
-
 TEMP1=subset_2d_tmp
 
 dataset=$1
