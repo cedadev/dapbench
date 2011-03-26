@@ -82,10 +82,11 @@ class Wrapper(object):
                 yield (timestamp, request)
                 timestamp = None
             else:                
-                mo = re.match('(\d+\.\d+)\s+(send|recv)', line)
+                mo = re.match('(\[pid (\d+)\])?\s*(\d+\.\d+)\s+(send|recv)', line)
                 if mo:
-                    timestamp, syscall = mo.groups()
+                    pid, timestamp, syscall = mo.groups()
                     timestamp = float(timestamp)
+                    #!TODO: track pids
 
         # Mark terminal event
         log.info('End: %s' % timestamp)
