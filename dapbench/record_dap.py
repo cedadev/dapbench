@@ -82,7 +82,7 @@ class Wrapper(object):
                 yield (timestamp, request)
                 timestamp = None
             else:                
-                mo = re.match('(?:\[pid (\d+)\])?\s*(\d+\.\d+)\s+(send|recv)', line)
+                mo = re.match('(?:\[pid *(\d+)\])?\s*(\d+\.\d+)\s+(send|recv)', line)
                 if mo:
                     pid, timestamp, syscall = mo.groups()
                     timestamp = float(timestamp)
