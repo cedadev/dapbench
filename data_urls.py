@@ -59,6 +59,6 @@ def make_dataset_list(base_url):
 
     """
     base_url = base_url.rstrip('/')
-    for d in DATA_LIST:
+    for d in DATA_FILES:
         yield '%s/%s/%s' % (base_url, DATA_DIR, d)
 
