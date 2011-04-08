@@ -62,8 +62,12 @@ class VariableWrapper(object):
     def shape(self):
         return tuple(self._ref.shape)
 
+    @property
+    def dimensions(self):
+        return self._ref.dimensions
+
 def _slice_to_rangespec(s):
-    if s == slice(None, None, None):
+    if s == slice(None, None, None) or s == slice(0, None, None):
         return ':'
     parts = [str(x) for x in [s.start or '0', s.stop or '', s.step or '']]
     while parts[-1] == '':

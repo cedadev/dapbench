@@ -27,3 +27,20 @@ def partition_shape(shape, partitions):
             
         steps = steps[1:]
 
+
+def partition_variable(variable, partition_dict):
+    """
+    As partition_shape() but takes a mapping of dimension-name to number
+    of partitions as it's second argument.  <variable> is a VariableWrapper
+    instance.
+
+    """
+    partitions = []
+    for dim in variable.dimensions:
+        if dim.name in partition_dict:
+            partitions.append(partition_dict[dim.name])
+        else:
+            partitions.append(1)
+
+    return partition_shape(variable.shape, partitions)
+                              
