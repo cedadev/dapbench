@@ -67,6 +67,7 @@ class VariableWrapper(object):
         return self._ref.dimensions
 
 def _slice_to_rangespec(s):
+    #!FIXME: this doesn't interpret slice(x, None, None) right
     if s == slice(None, None, None) or s == slice(0, None, None):
         return ':'
     parts = [str(x) for x in [s.start or '0', s.stop or '', s.step or '']]
