@@ -28,7 +28,7 @@ import re
 import urllib
 
 from dapbench.dap_request import DapRequest
-from dapbench.dap_stats import DapStats
+from dapbench.dap_stats import DapStats, SingleTimestampRecorder
 
 import logging
 log = logging.getLogger(__name__)
@@ -63,7 +63,8 @@ class Wrapper(object):
         log.debug('Full command: %s' % cmd)
         pipe = Popen(cmd, shell=True, stderr=PIPE).stderr
 
-        return DapStats(self.iter_requests(pipe))
+        recorder = SingleTimestampRecorder(self.iter_requests(pipe))
+        return recorder.stats
 
     def iter_requests(self, pipe):
         timestamp = None
@@ -135,5 +136,3 @@ def main(argv=sys.argv):
 if __name__ == '__main__':
     main()
 
-    #test_dataset = 'http://esg-dev1.badc.rl.ac.uk:8081/ta_20101129/ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc'
-    #stats = w.call('cdo runmean,10 http://esg-dev1.badc.rl.ac.uk:8080/opendap/ta_20101129/ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc out.nc')

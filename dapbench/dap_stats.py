@@ -12,15 +12,56 @@ Statistics on dap requests
 import numpy
 import sys
 
+
 class DapStats(object):
     """
-    Gather statistics about a stream of DapRequests objects.
+    Container for OPeNDAP request statistics.
+    """
+
+    def __init__(self):
+        self.datasets = {}
+
+    def get_cursor(self, dataset=None):
+        if dataset is None:
+            dataset = self.datasets.keys()[0]
+
+        return DapStatsCursor(self, dataset)
+
+    def add_request(self, dataset, start_timestamp, stop_timestamp, request):
+        ds_stat = self.datasets.setdefault(self.last_request.dataset, [])
+        ds_stat.append((start_timestamp, stop_timestamp, request))
+        
+
+    def print_summary(self, fh=sys.stdout):
+        for ds in self.datasets:
+            print '#'*78
+            print '  %s' % ds
+            print
+            c = self.get_cursor(ds)
+
+            print 'Resp.\tCount\tTMean\tSMean'
+            print
+            for resp in ['das', 'dds', 'dods']:
+                count = c.response_count(resp)
+                tmean = c.response_tmean(resp)
+                smean = c.response_smean(resp)
+                print '%s\t%d\t%f\t%d' % (resp, count, tmean, smean)
+        print
+
+
+class SingleTimestampRecorder(object):
+    """
+    Gather statistics from a stream of DapRequests objects with single timestamps.
+
+    When recording using the curl+strace method we only have timestamps for the
+    start of requests.  Therefore we need to infer the end of the request from
+    subsequent events.  This method takes a stream of (timestamp, DapRequest)
+    terminated by (timestamp, None) and creates a DapStats object in self.stats
 
     """
 
-
     def __init__(self, timed_requests=None):
-        self.datasets = {}
+        self.stats = DapStats()
 
         self.last_timestamp = None
         self.last_request = None
@@ -53,34 +94,14 @@ class DapStats(object):
         # Add final request
         self._unstage_req(timestamp)
 
-    def get_cursor(self, dataset=None):
-        if dataset is None:
-            dataset = self.datasets.keys()[0]
-
-        return DapStatsCursor(self, dataset)
-
     def _unstage_req(self, timestamp):
         # Add the last request
         if self.last_request:
-            ds_stat = self.datasets.setdefault(self.last_request.dataset, [])
-            ds_stat.append((self.last_timestamp, timestamp, self.last_request))
+            self.stats.add_request(self.last_request.dataset,
+                                   self.last_timestamp, timestamp,
+                                   self.last_request)
+            
 
-
-    def print_summary(self, fh=sys.stdout):
-        for ds in self.datasets:
-            print '#'*78
-            print '  %s' % ds
-            print
-            c = self.get_cursor(ds)
-
-            print 'Resp.\tCount\tTMean\tSMean'
-            print
-            for resp in ['das', 'dds', 'dods']:
-                count = c.response_count(resp)
-                tmean = c.response_tmean(resp)
-                smean = c.response_smean(resp)
-                print '%s\t%d\t%f\t%d' % (resp, count, tmean, smean)
-        print
 
 class DapStatsCursor(object):
     """
