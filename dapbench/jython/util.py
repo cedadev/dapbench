@@ -3,6 +3,7 @@ Utilities for running jython performance tests.
 
 """
 
+
 def partition_shape(shape, partitions):
     """
     Yields slices of an array described by <shape> that split into Nx-parts
@@ -44,3 +45,56 @@ def partition_variable(variable, partition_dict):
 
     return partition_shape(variable.shape, partitions)
                               
+
+class DapVarSubset(object):
+    """
+    Encapsulates a variable and a subset.  When called it makes the
+    variable request.
+
+    """
+    def __init__(self, variable, subset):
+        self.variable = variable
+        self.subset = subset
+
+    def __repr__(self):
+        #!TODO: serialise subset
+        return '<DapVarSubset %s[%s]>' % (self.variable.name, self.subset)
+
+    def __call__(self):
+        return self.variable[tuple(self.subset)]
+
+
+def generate_subset_requests(variable, partition_dict):
+    """
+    Yields callables which when called makes a subset request
+    to <variable> according to the partitions specified.
+
+    Made threadsafe with a lock.
+
+    """
+
+    def gen():
+        for subset in partition_variable(variable, partition_dict):
+            yield DapVarSubset(variable, subset)
+    
+    return LockedIterator(gen())
+
+
+#
+# From stackoverflow question 1131430
+#
+import threading
+class LockedIterator(object):
+    def __init__(self, it):
+        self.lock = threading.Lock()
+        self.it = it.__iter__()
+
+    def __iter__(self): return self
+
+    def next(self):
+        self.lock.acquire()
+        try:
+            return self.it.next()
+        finally:
+            self.lock.release()
+

@@ -66,6 +66,11 @@ class VariableWrapper(object):
     def dimensions(self):
         return self._ref.dimensions
 
+    @property
+    def name(self):
+        return self._ref.name
+
+
 def _slice_to_rangespec(s):
     #!FIXME: this doesn't interpret slice(x, None, None) right
     if s == slice(None, None, None) or s == slice(0, None, None):
