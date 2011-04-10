@@ -28,7 +28,7 @@ class DapTestRunner(object):
     def __call__(self):
         for req in self.requests:
             grinder.logger.output('Requesting %s' % req)
-            data = self.test.wrap(req)()
+            data = _instrumented(req)
             grinder.logger.output('Data returned of shape %s' % data.shape)
 
     @classmethod
@@ -39,6 +39,9 @@ class DapTestRunner(object):
         klass.requests = generate_subset_requests(var, partition_dict)
         #!TODO: detect next test number
         klass.test = Test(1, name)
+        klass.test.record(_instrumented)
 
         return klass
         
+def _instrumented(callable):
+    return callable()
