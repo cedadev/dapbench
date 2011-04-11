@@ -3,13 +3,47 @@ Try running sequential scan on a local file.
 
 """
 
-from dapbench.jython.grinder import DapTestRunner
+from net.grinder.script import Test
+from net.grinder.script.Grinder import grinder
 
-url = 'http://esg-dev1.badc.rl.ac.uk:8081/ta_20101129/ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc'
+from dapbench.jython.util import generate_subset_requests
+from dapbench.jython.netcdf import Dataset
 
 
-# Make 120 requests to variable ta
-TestRunner = DapTestRunner.configure('Remote NetCDF test',
-                                     url, 'ta',
-                                     {'time': 120})
-                                     
+import data_urls
+
+partition_dict = {'time': 120}               
+variable = 'ta'
+
+
+# Take the first dataset at all 3 bases
+tests = []
+i = 1
+for base in data_urls.DAP_BASES:
+    url = data_urls.make_dataset_list(base).next()
+    test = Test(i, base)
+    i += 1
+
+    print test
+    def f(req):
+        return req()
+    test.record(f)
+
+    ds = Dataset(url)
+    var = ds.variables[variable]
+    
+    requests = generate_subset_requests(var, partition_dict)
+
+    tests.append((url, test, f, requests))
+
+
+class TestRunner(object):
+    def __call__(self):
+        for url, test, f, requests in tests:
+            grinder.logger.output('Scanning dataset %s' % url)
+            
+            # Each invocation of f is recorded
+            for req in requests:
+                grinder.logger.output('Requesting %s' % req)
+                data = f(req)
+                grinder.logger.output('Data returned of shape %s' % data.shape)

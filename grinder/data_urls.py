@@ -12,7 +12,7 @@ Catalogs the test data available on esg-dev1.
 
 DAP_BASES = [
     'http://esg-dev1.badc.rl.ac.uk:8081/ta_20101129',
-    'http://esg-dev1.badc.rl.ac.uk:8080/thredds/dodsC/test_data',
+    'http://esg-dev1.badc.rl.ac.uk:8080/thredds/dodsC/test_data/ta_20101129',
     'http://esg-dev1.badc.rl.ac.uk:8080/opendap/ta_20101129',
     ]
 
@@ -50,8 +50,6 @@ DATA_FILES =  [
     'ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_200801010600-200901010000.nc',
 ]
 
-DATA_DIR = 'ta_20101129'
-
 def make_dataset_list(base_url):
     """
     Yields a list of URLs relative to base_url
@@ -60,5 +58,5 @@ def make_dataset_list(base_url):
     """
     base_url = base_url.rstrip('/')
     for d in DATA_FILES:
-        yield '%s/%s/%s' % (base_url, DATA_DIR, d)
+        yield '%s/%s' % (base_url, d)
 

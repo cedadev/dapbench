@@ -91,7 +91,7 @@ def spec_to_rangespec(spec):
 
 class Dataset(object):
     def __init__(self, location):
-        self._ds = NetcdfDataset.open(location)
+        self._ds = NetcdfDataset.openDataset(location)
         self.variables = VariableDict(self._ds)
         self.attributes = AttributeDict(self._ds)
 
