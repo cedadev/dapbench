@@ -11,7 +11,9 @@ Statistics on dap requests
 
 import numpy
 import sys
+import re
 
+from dapbench.dap_request import DapRequest
 
 class DapStats(object):
     """
@@ -28,7 +30,7 @@ class DapStats(object):
         return DapStatsCursor(self, dataset)
 
     def add_request(self, dataset, start_timestamp, stop_timestamp, request):
-        ds_stat = self.datasets.setdefault(self.last_request.dataset, [])
+        ds_stat = self.datasets.setdefault(dataset, [])
         ds_stat.append((start_timestamp, stop_timestamp, request))
         
 
@@ -45,7 +47,7 @@ class DapStats(object):
                 count = c.response_count(resp)
                 tmean = c.response_tmean(resp)
                 smean = c.response_smean(resp)
-                print '%s\t%d\t%f\t%d' % (resp, count, tmean, smean)
+                print '%s\t%d\t%f\t%f' % (resp, count, tmean, smean)
         print
 
 
@@ -132,3 +134,51 @@ class DapStatsCursor(object):
         return (t for t in self.ds_stats
                 if t[2].response == response)
 
+
+
+def echofilter_to_stats(file_handle):
+    """
+    Read the output from the custom grinder TCPProxy filter
+    TimestampedEchoFilter to produce a DapStats object.
+
+    """
+    #!FIXME: this doesn't work because the connection is only closed once.
+
+    stats = DapStats()
+    open_requests = {}
+    request = {}
+
+    for line in file_handle:
+        mo = re.match('--- ((.*)->(.*)) (opened|closed) (\d+) --', line)
+        if mo:
+            connection_details, source, dest, event, timestamp = mo.groups()
+            timestamp = int(timestamp)
+
+            if event == 'opened':
+                assert connection_details not in open_requests
+                open_requests[connection_details] = timestamp
+            elif event == 'closed':
+                start_timestamp = open_requests[connection_details]
+
+                host, port = dest.split(':')
+                import pdb; pdb.set_trace()
+                stats.add_request(host, start_timestamp, timestamp, 
+                                  request[connection_details])
+                del open_requests[connection_details]
+                del request[connection_details]
+            else:
+                raise Exception("Shouldn't get here")
+                                 
+            continue
+
+        mo = re.match('------ ((.*)->(.*)) ------', line)
+        if mo:
+            connection_details, source, dest = mo.groups()
+            continue
+
+        mo = re.match('GET ', line)
+        if mo:
+            request[connection_details] = DapRequest.from_get(source, line)
+            continue
+
+    return stats

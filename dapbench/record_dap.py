@@ -28,7 +28,7 @@ import re
 import urllib
 
 from dapbench.dap_request import DapRequest
-from dapbench.dap_stats import DapStats, SingleTimestampRecorder
+from dapbench.dap_stats import DapStats, SingleTimestampRecorder, echofilter_to_stats
 
 import logging
 log = logging.getLogger(__name__)
@@ -108,7 +108,24 @@ def make_parser():
                       default='INFO',
                       help="Set logging level")
 
+    parser.add_option('-p', '--proxy', action="store",
+                      help="Record via grinder TCPProxy output file.  Command is ignored")
+
     return parser
+
+def record_curl(opts, args):
+    if not args:
+        parser.error("No command specified")
+    
+    w = Wrapper(opts.dir)
+    command = ' '.join(args)
+    stats = w.call(command)
+
+    return stats
+
+def record_proxy(opts, args):
+    echofile = open(opts.proxy)
+    return echofilter_to_stats(echofile)
 
 def main(argv=sys.argv):
     import pickle
@@ -116,16 +133,15 @@ def main(argv=sys.argv):
     parser = make_parser()
     
     opts, args = parser.parse_args()
-    
-    if not args:
-        parser.error("No command specified")
-    
+
     loglevel = getattr(logging, opts.loglevel)
     logging.basicConfig(level=loglevel)
+    
+    if opts.proxy:
+        stats = record_proxy(opts, args)
+    else:
+        stats = record_curl(opts, args)
 
-    w = Wrapper(opts.dir)
-    command = ' '.join(args)
-    stats = w.call(command)
     stats.print_summary()
 
     if opts.stats:
