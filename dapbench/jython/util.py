@@ -3,6 +3,7 @@ Utilities for running jython performance tests.
 
 """
 
+from dapbench.jython.netcdf import Dataset
 
 def partition_shape(shape, partitions):
     """
@@ -78,6 +79,7 @@ def generate_subset_requests(variable, partition_dict):
             yield DapVarSubset(variable, subset)
     
     return LockedIterator(gen())
+
 
 
 #

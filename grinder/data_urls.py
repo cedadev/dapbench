@@ -10,14 +10,20 @@ Catalogs the test data available on esg-dev1.
 
 """
 
-DAP_BASES = [
-    'http://esg-dev1.badc.rl.ac.uk:8081/ta_20101129',
-    'http://esg-dev1.badc.rl.ac.uk:8080/thredds/dodsC/test_data/ta_20101129',
-    'http://esg-dev1.badc.rl.ac.uk:8080/opendap/ta_20101129',
-    ]
+import random
 
+DAP_BASES = {
+    'pydap': 'http://esg-dev1.badc.rl.ac.uk:8081/ta_20101129',
+    'tds': 'http://esg-dev1.badc.rl.ac.uk:8080/thredds/dodsC/test_data/ta_20101129',
+    'hyrax': 'http://esg-dev1.badc.rl.ac.uk:8080/opendap/ta_20101129',
+    }
+
+#
+# First file is shorter than the rest so don't use ensure random sampling
+# is fair.
+#
 DATA_FILES =  [
-    'ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc',
+    #'ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197812010600-197901010000.nc',
     'ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_197901010600-198001010000.nc',
     'ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_198001010600-198101010000.nc',
     'ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_198101010600-198201010000.nc',
@@ -50,13 +56,14 @@ DATA_FILES =  [
     'ta_6hrPlev_HadGEM2-ES_piControl_r1i1p1_200801010600-200901010000.nc',
 ]
 
-def make_dataset_list(base_url):
+def make_dataset_list(server):
     """
     Yields a list of URLs relative to base_url
     for the test data.
 
     """
-    base_url = base_url.rstrip('/')
+    base_url = DAP_BASES[server].rstrip('/')
     for d in DATA_FILES:
         yield '%s/%s' % (base_url, d)
 
+    

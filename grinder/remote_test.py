@@ -12,16 +12,16 @@ from dapbench.jython.netcdf import Dataset
 
 import data_urls
 
-partition_dict = {'time': 120}               
+partition_dict = {'time': 120} 
 variable = 'ta'
 
 
 # Take the first dataset at all 3 bases
 tests = []
 i = 1
-for base in data_urls.DAP_BASES:
-    url = data_urls.make_dataset_list(base).next()
-    test = Test(i, base)
+for server in data_urls.DAP_BASES:
+    url = data_urls.make_dataset_list(server).next()
+    test = Test(i, server)
     i += 1
 
     print test
