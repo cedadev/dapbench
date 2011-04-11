@@ -106,8 +106,8 @@ public class TimestampedEchoFilter implements TCPProxyFilter {
    */
   public void connectionOpened(ConnectionDetails connectionDetails) {
 
-    m_out.println("--- " +  connectionDetails + " opened --");
-    printTimestamp();
+      m_out.println("--- " +  connectionDetails + " opened " + 
+		    timestamp() + " --");
   }
 
   /**
@@ -115,16 +115,16 @@ public class TimestampedEchoFilter implements TCPProxyFilter {
    */
   public void connectionClosed(ConnectionDetails connectionDetails) {
 
-    m_out.println("--- " +  connectionDetails + " closed --");
-    printTimestamp();
+    m_out.println("--- " +  connectionDetails + " closed " +
+		  timestamp() + " --");
   }
 
     /**
      * {@inheritDoc}
      */
-    public void printTimestamp() {
+    private long timestamp() {
 	Calendar calendar = Calendar.getInstance();
-	m_out.println("--- timestamp: " + calendar.getTimeInMillis() + " ---");
+	return calendar.getTimeInMillis();
     }
 
 }

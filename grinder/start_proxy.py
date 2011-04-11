@@ -17,6 +17,6 @@ JAVA_OPTS=
 
 # Invoke with required filters and pass on any further arguments.
 java -cp $CLASSPATH $JAVA_OPTS net.grinder.TCPProxy \
-    -requestfilter TimestampedEchofilter \
+    -requestfilter TimestampedEchoFilter \
     -responsefilter net.grinder.tools.tcpproxy.NullFilter \
     $@
