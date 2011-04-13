@@ -11,7 +11,9 @@ Statistics on dap requests
 
 import numpy
 import sys
+import re
 
+from dapbench.dap_request import DapRequest
 
 class DapStats(object):
     """
@@ -131,4 +133,46 @@ class DapStatsCursor(object):
     def _iter_response(self, response):
         return (t for t in self.ds_stats
                 if t[2].response == response)
+
+
+
+def echofilter_to_stats(file_handle):
+    """
+    Read the output from the custom grinder TCPProxy filter
+    TimestampedEchoFilter to produce a DapStats object.
+
+    """
+
+    stats = DapStats()
+    open_requests = {}
+    current_source = None
+
+    for line in file_handle:
+        mo = re.match('--- (.*)->(.*) (opened|closed) (\d+) --', line)
+        if mo:
+            source, dest, event, timestamp = mo.groups()
+            if event == 'opened':
+                assert source not in open_requests
+                open_requests[source] = (dest, timestamp)
+            elif event == 'closed':
+                host, start_timestamp, request = open_requests[source]
+                stats.add_request(host, start_timestmp, timestamp, request)
+                del open_requests[source]
+                request = None
+            else:
+                raise Exception("Shouldn't get here")
+                                 
+            continue
+
+        mo = re.match('------ (.*)->(.*) ------', line)
+        if mo:
+            current_source = mo.group(1)
+            continue
+
+        mo = re.match('GET ', line)
+        if mo:
+            #!FIXME: host is undefined!
+            request = DapRequest.from_get(host, line)
+            open_requests[current_source].append(request)
+            continue
 
