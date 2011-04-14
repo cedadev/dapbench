@@ -161,7 +161,6 @@ def echofilter_to_stats(file_handle):
                 start_timestamp = open_requests[connection_details]
 
                 host, port = dest.split(':')
-                import pdb; pdb.set_trace()
                 stats.add_request(host, start_timestamp, timestamp, 
                                   request[connection_details])
                 del open_requests[connection_details]
@@ -171,7 +170,7 @@ def echofilter_to_stats(file_handle):
                                  
             continue
 
-        mo = re.match('------ ((.*)->(.*)) ------', line)
+        mo = re.match('------ ((.*)->(.*)) (\d+) ------', line)
         if mo:
             connection_details, source, dest = mo.groups()
             continue

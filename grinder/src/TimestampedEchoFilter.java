@@ -95,7 +95,7 @@ public class TimestampedEchoFilter implements TCPProxyFilter {
       }
     }
 
-    m_out.println("------ " + connectionDetails + " ------");
+    m_out.println("------ " + connectionDetails + " " + timestamp() + " ------");
     m_out.println(stringBuffer);
 
     return null;
