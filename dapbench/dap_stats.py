@@ -30,7 +30,7 @@ class DapStats(object):
         return DapStatsCursor(self, dataset)
 
     def add_request(self, dataset, start_timestamp, stop_timestamp, request):
-        ds_stat = self.datasets.setdefault(self.last_request.dataset, [])
+        ds_stat = self.datasets.setdefault(dataset, [])
         ds_stat.append((start_timestamp, stop_timestamp, request))
         
 
