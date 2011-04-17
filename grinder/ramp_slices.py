@@ -20,7 +20,7 @@ import data_urls
 
 # The BADC test datasets contain variable 'ta' with 1440 timepoints
 variable = 'ta'
-server = 'pydap'
+server = 'tds'
 
 dataset_url = random.choice(list(data_urls.make_dataset_list(server)))
 ds = Dataset(dataset_url)
@@ -38,6 +38,10 @@ class Instrumented(object):
                          'Partition into %d slices' % partition)
         Instrumented.next_test += 1
 
+        self.test_tot = Test(Instrumented.next_test,
+                             'Total for %d slices' % partition)
+        Instrumented.next_test += 1
+
         self.requests = generate_subset_requests(variable, {'time': partition})
 
         # Create a fresh callable to instrument
@@ -45,12 +49,18 @@ class Instrumented(object):
             return req()
         self.test.record(f)
         self.f = f
+
+        def f2():
+            for req in self.requests:
+                grinder.logger.output('Requesting %s' % req)
+                data = self.f(req)
+                grinder.logger.output('Data returned of shape %s' % data.shape)
+
+        self.test_tot.record(f2)
+        self.f2 = f2
     
     def __call__(self):
-        for req in self.requests:
-            grinder.logger.output('Requesting %s' % req)
-            data = self.f(req)
-            grinder.logger.output('Data returned of shape %s' % data.shape)
+        self.f2()
 
 
 # Create tests
