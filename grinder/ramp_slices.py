@@ -11,19 +11,25 @@ from net.grinder.script.Grinder import grinder
 from dapbench.jython.util import generate_subset_requests
 from dapbench.jython.netcdf import Dataset
 
+
+#
+# Select a dataset to test.  This selection is specific to the
+# BADC test server.  Adapt to suite your test server.
+#
 import data_urls
 
-time_len = 1440
-partitions = [15, 30, 60, 120, 240, 480, 720, 1440]
-
-server = 'pydap'
+# The BADC test datasets contain variable 'ta' with 1440 timepoints
 variable = 'ta'
+server = 'pydap'
 
-# Select random dataset
 dataset_url = random.choice(list(data_urls.make_dataset_list(server)))
 ds = Dataset(dataset_url)
 variable = ds.variables[variable]
 
+#
+# partitions dictate into how many slices each run will divide the request
+#
+partitions = [15, 30, 60, 120, 240, 480, 720, 1440]
 
 class Instrumented(object):
     next_test = 1
