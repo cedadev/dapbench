@@ -4,6 +4,7 @@ doc/doctrees
 dist
 tmp
 grinder/*-file-store
+grinder/log/*.log*
 
 TAGS
 .ant-targets-build.xml
