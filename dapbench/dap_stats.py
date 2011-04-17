@@ -148,31 +148,36 @@ def echofilter_to_stats(file_handle):
     open_requests = {}
     request = {}
 
+
     for line in file_handle:
         mo = re.match('--- ((.*)->(.*)) (opened|closed) (\d+) --', line)
+        # Can ignore open events
         if mo:
             connection_details, source, dest, event, timestamp = mo.groups()
-            timestamp = int(timestamp)
-
-            if event == 'opened':
-                assert connection_details not in open_requests
-                open_requests[connection_details] = timestamp
-            elif event == 'closed':
+            timestamp = float(timestamp)
+            if event == 'closed':
                 start_timestamp = open_requests[connection_details]
-
+            
                 host, port = dest.split(':')
-                stats.add_request(host, start_timestamp, timestamp, 
+                stats.add_request(host, start_timestamp/1000, timestamp/1000, 
                                   request[connection_details])
-                del open_requests[connection_details]
-                del request[connection_details]
-            else:
-                raise Exception("Shouldn't get here")
-                                 
-            continue
+                del request[connection_details]                
 
         mo = re.match('------ ((.*)->(.*)) (\d+) ------', line)
         if mo:
-            connection_details, source, dest = mo.groups()
+            connection_details, source, dest, timestamp = mo.groups()
+            timestamp = float(timestamp)
+
+            if connection_details in open_requests:
+                start_timestamp = open_requests[connection_details]
+            
+                host, port = dest.split(':')
+                stats.add_request(host, start_timestamp/1000, timestamp/1000, 
+                                  request[connection_details])
+                del request[connection_details]
+
+            open_requests[connection_details] = timestamp
+
             continue
 
         mo = re.match('GET ', line)

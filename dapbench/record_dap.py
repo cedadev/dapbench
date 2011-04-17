@@ -108,8 +108,8 @@ def make_parser():
                       default='INFO',
                       help="Set logging level")
 
-    parser.add_option('-p', '--proxy', action="store",
-                      help="Record via grinder TCPProxy output file.  Command is ignored")
+    parser.add_option('-p', '--proxy', action="store", metavar='PROXY_OUTPUT',
+                      help="Record via grinder TCPProxy output file PROXY_OUTPUT.  Command is ignored")
 
     return parser
 
