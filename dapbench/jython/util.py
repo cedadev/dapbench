@@ -59,7 +59,7 @@ class DapVarSubset(object):
 
     def __repr__(self):
         return '<DapVarSubset %s%s>' % (self.variable.name, 
-                                        _repr_silce(self.subset))
+                                        _repr_slice(self.subset))
 
     def __call__(self):
         return self.variable[tuple(self.subset)]
