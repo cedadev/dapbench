@@ -19,7 +19,7 @@ def partition_shape(shape, partitions):
         if len(steps) == 1:
             s = slice(steps[0], None)
         else:
-            s = slice(steps[0], steps[1]-1)
+            s = slice(steps[0], steps[1])
 
         if len(shape) == 1:
             yield [s]
@@ -58,11 +58,22 @@ class DapVarSubset(object):
         self.subset = subset
 
     def __repr__(self):
-        #!TODO: serialise subset
-        return '<DapVarSubset %s[%s]>' % (self.variable.name, self.subset)
+        return '<DapVarSubset %s%s>' % (self.variable.name, 
+                                        _repr_silce(self.subset))
 
     def __call__(self):
         return self.variable[tuple(self.subset)]
+
+
+def _repr_slice(s):
+    def f(v):
+        if v is None:
+            return ''
+        else:
+            return str(v)
+
+    p = [f(s.start), f(s.stop), f(s.step)]
+    return '[%s]' % ':'.join(p)
 
 
 def generate_subset_requests(variable, partition_dict):
