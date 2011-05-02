@@ -20,7 +20,7 @@ import data_urls
 
 # The BADC test datasets contain variable 'ta' with 1440 timepoints
 variable = 'ta'
-server = 'tds'
+server = 'hyrax'
 
 dataset_url = random.choice(list(data_urls.make_dataset_list(server)))
 ds = Dataset(dataset_url)
@@ -29,7 +29,9 @@ variable = ds.variables[variable]
 #
 # partitions dictate into how many slices each run will divide the request
 #
-partitions = [15, 30, 60, 120, 240, 480, 720, 1440]
+#partitions = [15, 30, 60, 120, 240, 480, 720, 1440]
+partitions = [x+60 for x in range(0, 1440, 60)]
+
 
 class Instrumented(object):
     next_test = 1
@@ -38,9 +40,8 @@ class Instrumented(object):
                          'Partition into %d slices' % partition)
         Instrumented.next_test += 1
 
-        self.test_tot = Test(Instrumented.next_test,
+        self.test_tot = Test(100 + Instrumented.next_test,
                              'Total for %d slices' % partition)
-        Instrumented.next_test += 1
 
         self.requests = generate_subset_requests(variable, {'time': partition})
 
@@ -72,3 +73,4 @@ class TestRunner(object):
     def __call__(self):
         for test in tests:
             test()
+
