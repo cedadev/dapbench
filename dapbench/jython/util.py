@@ -59,21 +59,24 @@ class DapVarSubset(object):
 
     def __repr__(self):
         return '<DapVarSubset %s%s>' % (self.variable.name, 
-                                        _repr_slice(self.subset))
+                                        _repr_slices(self.subset))
 
     def __call__(self):
         return self.variable[tuple(self.subset)]
 
 
-def _repr_slice(s):
-    def f(v):
-        if v is None:
-            return ''
-        else:
-            return str(v)
+def _repr_slices(slices):
+    sl = []
+    for s in slices:
+        def f(v):
+            if v is None:
+                return ''
+            else:
+                return str(v)
 
-    p = [f(s.start), f(s.stop), f(s.step)]
-    return '[%s]' % ':'.join(p)
+        p = [f(s.start), f(s.stop), f(s.step)]
+        sl.append('[%s]' % ':'.join(p))
+    return ''.join(s1)
 
 
 def generate_subset_requests(variable, partition_dict):
