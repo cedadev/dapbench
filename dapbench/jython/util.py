@@ -76,7 +76,7 @@ def _repr_slices(slices):
 
         p = [f(s.start), f(s.stop), f(s.step)]
         sl.append('[%s]' % ':'.join(p))
-    return ''.join(s1)
+    return ''.join(sl)
 
 
 def generate_subset_requests(variable, partition_dict):
