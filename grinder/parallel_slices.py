@@ -14,9 +14,10 @@ from dapbench.jython.netcdf import Dataset
 import data_urls
 
 time_len = 1440
-partition_dict = {'time': 120}
+partition_dict = {'time': time_len}
+req_sample_size = 100
 
-server = 'hyrax'
+server = 'pydap'
 variable = 'ta'
 
 test = Test(1, "Parallel slice request")
@@ -43,9 +44,13 @@ class TestRunner(object):
         grinder.sleep(10000*self.thread, 0)
         grinder.logger.output('Thread %d starting requests' % self.thread)
 
-        for req in self.requests:
+        # Each thread randomly selects a sample of 100 requests
+        requests = random.choice(list(self.requests), req_sample_size)
+        
+        for req in requests:
             grinder.logger.output('Requesting %s' % req)
             data = call_request(req)
             grinder.logger.output('Data returned of shape %s' % data.shape)
+
 
 
