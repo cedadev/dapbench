@@ -18,7 +18,9 @@ req = HTTPRequest()
 req.setReadResponseBody(False)
 chunk = 1024*512
 
-server = 'pydap'
+properties = grinder.properties.getPropertySubset('dapbench.')
+
+server = properties['server']
 
 def streamed_get(url):
     buf = jarray.zeros(chunk, 'b')
@@ -32,10 +34,6 @@ def streamed_get(url):
 
     return total
 streamed_get = test1.wrap(streamed_get)
-
-#!NOTE: as configured all the file is read into memory.
-#       grinder could be configured to stream the body if we want
-#       to test large files.
 
 class TestRunner:
     def __call__(self):
