@@ -16,7 +16,7 @@ import data_urls
 time_len = 1440
 partition_dict = {'time': 120}
 
-server = 'hyrax'
+server = 'pydap'
 variable = 'ta'
 
 test = Test(1, "Parallel slice request")
@@ -40,7 +40,7 @@ class TestRunner(object):
                                                           self.dataset_url))
 
     def __call__(self):
-        grinder.sleep(10000*self.thread, 0)
+        grinder.sleep(5000*self.thread, 0)
         grinder.logger.output('Thread %d starting requests' % self.thread)
 
         for req in self.requests:
