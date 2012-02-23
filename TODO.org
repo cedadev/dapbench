@@ -1,0 +1,6 @@
+
+** TODO Set all parameters from the properties files rather than python modules
+** TODO script for creating/uploading datasets to test server
+** TODO automatically get test datasets from server to replace data_urls.py
+
+** TODO Move as much code as possible into the dapbench package
