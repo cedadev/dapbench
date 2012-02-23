@@ -1,5 +1,5 @@
 """
-Ramp-up the number of slices to split the request into on each run
+Request slices in parallel.
 
 """
 
@@ -13,24 +13,26 @@ from dapbench.jython.netcdf import Dataset
 
 import data_urls
 
-time_len = 1440
-partition_dict = {'time': time_len}
-req_sample_size = 100
+properties = grinder.properties.getPropertySubset('dapbench.')
 
-server = 'pydap'
-variable = 'ta'
+variable = properties['variable']
+server = properties['server']
+time_len = int(properties['time_len'])
+req_sample_size = properties['req_sample_size']
+
+partition_dict = {'time': time_len}
+dataset_list = list(data_urls.make_dataset_list(server))
 
 test = Test(1, "Parallel slice request")
 def call_request(req):
     return req()
 test.record(call_request)
 
-dataset_list = list(data_urls.make_dataset_list(server))
-
 class TestRunner(object):
     def __init__(self):
         self.thread = grinder.getThreadNumber()
         # Select random dataset
+        #!TODO: select dataset by Thread number?
         self.dataset_url = random.choice(dataset_list)
         self.ds = Dataset(self.dataset_url)
         self.variable = self.ds.variables[variable]
@@ -44,7 +46,7 @@ class TestRunner(object):
         grinder.sleep(5000*self.thread, 0)
         grinder.logger.output('Thread %d starting requests' % self.thread)
 
-        # Each thread randomly selects a sample of 100 requests
+        # Each thread randomly selects a sample requests
         requests = random.choice(list(self.requests), req_sample_size)
         
         for req in requests:
