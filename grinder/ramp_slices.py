@@ -30,7 +30,12 @@ variable = ds.variables[variable]
 #
 # partitions dictate into how many slices each run will divide the request
 #
+<<<<<<< HEAD
 partitions = [int(x) for x in properties['partitions'].split(',')]
+=======
+partitions = [15, 30, 60, 120, 240, 480, 720, 1440]
+
+>>>>>>> origin/master
 
 
 class Instrumented(object):
@@ -38,10 +43,10 @@ class Instrumented(object):
     def __init__(self, partition):
         self.test = Test(Instrumented.next_test, 
                          'Partition into %d slices' % partition)
-        Instrumented.next_test += 1
 
         self.test_tot = Test(100 + Instrumented.next_test,
                              'Total for %d slices' % partition)
+        Instrumented.next_test += 1
 
         self.requests = generate_subset_requests(variable, {'time': partition})
 

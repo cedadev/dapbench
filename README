@@ -15,3 +15,9 @@ and timespan.
 2. Simulate multiple users interacting with a server over OPeNDAP and
 gather statistics.
 
+
+
+Tips on Running Grinder
+=======================
+
+* Make sure you run the Console from the grinder directory.

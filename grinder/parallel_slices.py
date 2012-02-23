@@ -41,7 +41,7 @@ class TestRunner(object):
                                                           self.dataset_url))
 
     def __call__(self):
-        grinder.sleep(10000*self.thread, 0)
+        grinder.sleep(5000*self.thread, 0)
         grinder.logger.output('Thread %d starting requests' % self.thread)
 
         # Each thread randomly selects a sample of 100 requests
