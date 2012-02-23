@@ -11,6 +11,7 @@ from net.grinder.script.Grinder import grinder
 from dapbench.jython.util import generate_subset_requests
 from dapbench.jython.netcdf import Dataset
 
+properties = grinder.properties.getPropertySubset('dapbench.')
 
 #
 # Select a dataset to test.  This selection is specific to the
@@ -19,8 +20,8 @@ from dapbench.jython.netcdf import Dataset
 import data_urls
 
 # The BADC test datasets contain variable 'ta' with 1440 timepoints
-variable = 'ta'
-server = 'hyrax'
+variable = properties['variable']
+server = properties['server']
 
 dataset_url = random.choice(list(data_urls.make_dataset_list(server)))
 ds = Dataset(dataset_url)
@@ -29,8 +30,7 @@ variable = ds.variables[variable]
 #
 # partitions dictate into how many slices each run will divide the request
 #
-#partitions = [15, 30, 60, 120, 240, 480, 720, 1440]
-partitions = [x+60 for x in range(0, 1440, 60)]
+partitions = [int(x) for x in properties['partitions'].split(',')]
 
 
 class Instrumented(object):

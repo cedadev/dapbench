@@ -12,11 +12,17 @@ Catalogs the test data available on esg-dev1.
 
 import random
 
+from net.grinder.script.Grinder import grinder
+
+properties = grinder.properties.getPropertySubset('dapbench')
+
+
 DAP_BASES = {
     'pydap': 'http://esg-dev1.badc.rl.ac.uk:8081/ta_20101129',
     'tds': 'http://esg-dev1.badc.rl.ac.uk:8080/thredds/dodsC/test_data/ta_20101129',
     'tds_fs': 'http://esg-dev1.badc.rl.ac.uk:8080/thredds/fileServer/test_data/ta_20101129',
     'hyrax': 'http://esg-dev1.badc.rl.ac.uk:8080/opendap/ta_20101129',
+    'local': properties['dataDir']
     }
 
 #
