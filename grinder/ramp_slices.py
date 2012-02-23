@@ -30,12 +30,7 @@ variable = ds.variables[variable]
 #
 # partitions dictate into how many slices each run will divide the request
 #
-<<<<<<< HEAD
 partitions = [int(x) for x in properties['partitions'].split(',')]
-=======
-partitions = [15, 30, 60, 120, 240, 480, 720, 1440]
-
->>>>>>> origin/master
 
 
 class Instrumented(object):
