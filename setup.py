@@ -27,9 +27,9 @@ setup(name='dapbench',
       install_requires=[
           # -*- Extra requirements: -*-
       ],
-      entry_points="""
-      # -*- Entry points: -*-
-      [console_scripts]
-      record_dap = dapbench.record_dap:main
-      """,
+      entry_points = {
+        'console_scripts': [
+            'dapbench-thredds = dapbench.thredds.scripts.dispatch:main',
+            ]
+        }
       )
