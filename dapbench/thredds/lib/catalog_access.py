@@ -5,11 +5,11 @@ Created on 26 Sep 2011
 
 @author: rwilkinson
 '''
-from thredds_security_test.lib.catalog_parser import CatalogParser
-from thredds_security_test.lib.dataset_config import Access
-import thredds_security_test.lib.httpget as httpget
-from thredds_security_test.lib.results import Results
-import thredds_security_test.lib.url_util as url_util
+from dapbench.thredds.lib.catalog_parser import CatalogParser
+from dapbench.thredds.lib.dataset_config import Access
+import dapbench.thredds.lib.httpget as httpget
+from dapbench.thredds.lib.results import Results
+import dapbench.thredds.lib.url_util as url_util
 
 SERVICE_TYPES_RETURNING_CATALOGS = ['Catalog', 'Resolver']
 SERVICE_TYPES_NOT_TO_CHECK = ['QueryCapability']

@@ -3,8 +3,8 @@ Created on 28 Sep 2011
 
 @author: rwilkinson
 '''
-from thredds_security_test.lib.configuration import Configuration
-import thredds_security_test.lib.httpget as httpget
+from dapbench.thredds.lib.configuration import Configuration
+import dapbench.thredds.lib.httpget as httpget
 from optparse import OptionParser
 import os
 

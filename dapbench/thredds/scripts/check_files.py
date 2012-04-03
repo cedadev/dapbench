@@ -3,8 +3,8 @@ Created on 5 Oct 2011
 
 @author: rwilkinson
 '''
-from thredds_security_test.lib.configuration import Configuration
-import thredds_security_test.lib.file_access as file_access
+from dapbench.thredds.lib.configuration import Configuration
+import dapbench.thredds.lib.file_access as file_access
 from optparse import OptionParser
 import os
 import sys

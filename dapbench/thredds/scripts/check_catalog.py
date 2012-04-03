@@ -6,8 +6,8 @@ Created on 27 Sep 2011
 from optparse import OptionParser
 import os
 import sys
-import thredds_security_test.lib.catalog_access as catalog_access
-from thredds_security_test.lib.configuration import Configuration
+import dapbench.thredds.lib.catalog_access as catalog_access
+from dapbench.thredds.lib.configuration import Configuration
 
 def main():
     '''Utility to report on the ability of the user to access datasets in a THREDDS system.

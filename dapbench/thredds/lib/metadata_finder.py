@@ -3,10 +3,10 @@ Created on 28 Oct 2011
 
 @author: rwilkinson
 '''
-from thredds_security_test.lib.catalog_parser import CatalogParser
-import thredds_security_test.lib.httpget as httpget
-import thredds_security_test.lib.url_util as url_util
-from thredds_security_test.lib.catalog_access import SERVICE_TYPES_RETURNING_CATALOGS
+from dapbench.thredds.lib.catalog_parser import CatalogParser
+import dapbench.thredds.lib.httpget as httpget
+import dapbench.thredds.lib.url_util as url_util
+from dapbench.thredds.lib.catalog_access import SERVICE_TYPES_RETURNING_CATALOGS
 
 class Results(object):
     """Holds the results summary of the metadata checks.

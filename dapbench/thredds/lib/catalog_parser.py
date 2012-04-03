@@ -6,10 +6,10 @@ Created on 26 Sep 2011
 @author: rwilkinson
 '''
 import xml.dom.minidom as minidom
-from thredds_security_test.lib.dataset_config import Dataset, Access, CatalogRef
-from thredds_security_test.lib.service_config import Service
-import thredds_security_test.lib.url_util as url_util
-import thredds_security_test.lib.xml_util as xml_util
+from dapbench.thredds.lib.dataset_config import Dataset, Access, CatalogRef
+from dapbench.thredds.lib.service_config import Service
+import dapbench.thredds.lib.url_util as url_util
+import dapbench.thredds.lib.xml_util as xml_util
 
 class CatalogParser(object):
     """Parses required details from a THREDDS catalog.

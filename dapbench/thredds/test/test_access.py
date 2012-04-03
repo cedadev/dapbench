@@ -5,9 +5,9 @@ Created on 30 Sep 2011
 '''
 import os
 import unittest
-import thredds_security_test.lib.catalog_access as catalog_access
-from thredds_security_test.lib.configuration import Configuration
-from thredds_security_test.lib.results import Results
+import dapbench.thredds.lib.catalog_access as catalog_access
+from dapbench.thredds.lib.configuration import Configuration
+from dapbench.thredds.lib.results import Results
 
 class Test(unittest.TestCase):
     """Example test of access to catalogs.

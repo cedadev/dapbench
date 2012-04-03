@@ -5,9 +5,9 @@ Created on 26 Sep 2011
 '''
 from optparse import OptionParser
 import os
-from thredds_security_test.lib.configuration import Configuration
-from thredds_security_test.lib.service_config import Service
-import thredds_security_test.lib.httpget as httpget
+from dapbench.thredds.lib.configuration import Configuration
+from dapbench.thredds.lib.service_config import Service
+import dapbench.thredds.lib.httpget as httpget
 
 def configure_services():
     services = [

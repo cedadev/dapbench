@@ -5,8 +5,8 @@ Created on 5 Oct 2011
 
 @author: rwilkinson
 '''
-import thredds_security_test.lib.httpget as httpget
-from thredds_security_test.lib.results import Results
+import dapbench.thredds.lib.httpget as httpget
+from dapbench.thredds.lib.results import Results
 
 def check_files(file_list, config):
     """Checks access to a list of files.

@@ -6,8 +6,8 @@ Created on 28 Oct 2011
 from optparse import OptionParser
 import os
 import sys
-import thredds_security_test.lib.metadata_finder as metadata_finder
-from thredds_security_test.lib.configuration import Configuration
+import dapbench.thredds.lib.metadata_finder as metadata_finder
+from dapbench.thredds.lib.configuration import Configuration
 
 def main():
     '''Utility to report on the presence of expected dataset properties in a THREDDS catalog.
