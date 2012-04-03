@@ -1,17 +1,19 @@
-=====================
-THREDDS Security Test
-=====================
+=======================================
+Dapbench THREDDS security testing tools
+=======================================
 
 Description
 ===========
-This is a set of tools for testing the security configuration of THREDDS data servers. There are
-three tools:
+This is a set of tools for testing the security configuration of
+THREDDS data servers.  Each tool can be executed via a single
+dispatcher script "dapbench-thredds"
 
-thredds_test_url_access::
+
+dapbench-thredds url::
  - Determines whether access is available to a single resource specified by URL. An option is
    provided to download the resource.
 
-thredds_test_catalog_access::
+dapbench-thredds catalog::
  - Determines whether access is available to the resources listed in a catalog specified by URL.
    Optionally, it will recurse through catalog references. Numbers of resources to which access is
    allowed and/or denied can be specified and a check is made that these match the results.
@@ -25,7 +27,7 @@ thredds_test_catalog_access::
    dataset, and access is found to be possible by some of these but not others, the security
    configuration will be reported as inconsistent.
 
-thredds_test_file_access::
+dapbench-thredds files::
  - Determines whether access is available to a set of resources specified by URL listed in a file.
    This is intended to be used to check that files that exist in the THREDDS content directories,
    but which are not listed in catalogs, are not accessible.
@@ -34,11 +36,6 @@ Prerequisites
 =============
 This has been developed and tested for Python 2.6 compiled with HTTPS support. Earlier Python
 versions do not handle HTTPS proxies.
-
-Installation
-============
-Installation can be performed using easy_install, e.g.::
-  easy_install thredds_security_test-0.1.0-py2.6.egg
 
 Running
 =======
@@ -55,12 +52,12 @@ Each tool has a -h or --help option, which shows the usage and options. Common o
 
 Specific arguments and options::
 
-  thredds_test_url_access [options] url
+  dapbench-thredds url [options] <url>
     url                   The URL of the resource the accessibility of which is to be tested
     -f FILE, --fetch=FILE
                           Specifies a file into which to fetch the resource contents if accessible.
 
-  thredds_test_catalog_access [options] catalog_url
+  dapbench-thredds catalog [options] <catalog_url>
     catalog_url           The URL of the catalog to test
     -l, --list-only       Only list datasets in the catalog(s) without checking access.
     -r, --recurse         Recurse into referenced catalogs. References of the following types are
@@ -98,7 +95,7 @@ Specific arguments and options::
                           This is of use, e.g., if a security configuration allows access to the .asc
                           resources but not the equivalent .ascii resources.
 
-  thredds_test_file_access [options] list_file_path
+  dapbench-thredds files [options] <list_file_path>
     list_file_path        Path of a file containing a list of URLs, of which the accessibility of each
                           is to be tested
     -a NUMBER, --expect-allowed=NUMBER
@@ -113,17 +110,17 @@ Specific arguments and options::
                           value 1.
 
 Return statuses::
-  thredds_test_url_access
+  dapbench-thredds url
     0 - if the resource is accessible
     1  -if the resource is not accessible
 
-  thredds_test_catalog_access
+  dapbench-thredds catalog
     1 - if the expect-allowed and/or expect-denied options were specified and the result did not match
         the option value.
     2 - if the user interrupted test
     0 - otherwise
 
-  thredds_test_file_access
+  dapbench-thredds files
     1 - if the expect-allowed and/or expect-denied options were specified and the result did not match
         the option value.
     2 - if the user interrupted test
@@ -133,8 +130,8 @@ Scripted Testing
 ================
 In addition to the command line tools described above, Python test scripts may also be written. The
 tests should call any of the functions::
-  thredds_security_test.lib.catalog_access.check_catalog
-  thredds_security_test.lib.file_access.check_files
-  thredds_security_test.lib.httpget.check_url
+  dapbench.thredds.lib.catalog_access.check_catalog
+  dapbench.thredds.lib.file_access.check_files
+  dapbench.thredds.lib.httpget.check_url
 
-See thredds_security_test.test.test_access.py for an example of usage.
+See dapbench.thredds.test.test_access.py for an example of usage.
