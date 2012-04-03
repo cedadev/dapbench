@@ -1,0 +1,140 @@
+=====================
+THREDDS Security Test
+=====================
+
+Description
+===========
+This is a set of tools for testing the security configuration of THREDDS data servers. There are
+three tools:
+
+thredds_test_url_access::
+ - Determines whether access is available to a single resource specified by URL. An option is
+   provided to download the resource.
+
+thredds_test_catalog_access::
+ - Determines whether access is available to the resources listed in a catalog specified by URL.
+   Optionally, it will recurse through catalog references. Numbers of resources to which access is
+   allowed and/or denied can be specified and a check is made that these match the results.
+
+   Each service listed in the catalog as applicable to a dataset is tried. For services that have
+   multiple extensions used to access different types of data or metadata, each extension is tried
+   (by default, this following extensions are tried for OPENDAP services: .html, .dds, .das, .asc,
+   .ascii and .dods).
+
+   If there is more than one service or service/extension combination available for accessing a
+   dataset, and access is found to be possible by some of these but not others, the security
+   configuration will be reported as inconsistent.
+
+thredds_test_file_access::
+ - Determines whether access is available to a set of resources specified by URL listed in a file.
+   This is intended to be used to check that files that exist in the THREDDS content directories,
+   but which are not listed in catalogs, are not accessible.
+
+Prerequisites
+=============
+This has been developed and tested for Python 2.6 compiled with HTTPS support. Earlier Python
+versions do not handle HTTPS proxies.
+
+Installation
+============
+Installation can be performed using easy_install, e.g.::
+  easy_install thredds_security_test-0.1.0-py2.6.egg
+
+Running
+=======
+Each tool has a -h or --help option, which shows the usage and options. Common options are::
+
+    -h, --help            Show help message and exit.
+    -k FILE, --private-key=FILE
+                          Private key file - defaults to $HOME/.esg/credentials.pem
+    -c FILE, --certificate=FILE
+                          Certificate file - defaults to $HOME/.esg/credentials.pem
+    -d, --debug           Print debug information - this may be useful in solving problems with HTTP
+                          or HTTPS access to a server.
+    -q, --quiet           Produce minimal output.
+
+Specific arguments and options::
+
+  thredds_test_url_access [options] url
+    url                   The URL of the resource the accessibility of which is to be tested
+    -f FILE, --fetch=FILE
+                          Specifies a file into which to fetch the resource contents if accessible.
+
+  thredds_test_catalog_access [options] catalog_url
+    catalog_url           The URL of the catalog to test
+    -l, --list-only       Only list datasets in the catalog(s) without checking access.
+    -r, --recurse         Recurse into referenced catalogs. References of the following types are
+                          followed:
+                          o Service with service type 'Catalog' or 'Resolver
+                          o Catalog references contained within a catalog
+    -a NUMBER, --expect-allowed=NUMBER
+                          Number of datasets for which access is expected to be allowed. After the
+                          access checks are made, this number is compared with the number found; if
+                          they are not the same an error message printed and the tool returns status
+                          value 1.
+    -x NUMBER, --expect-denied=NUMBER
+                          Number of datasets for which access is expected to be denied. After the
+                          access checks are made, this number is compared with the number found; if
+                          they are not the same an error message printed and the tool returns status
+                          value 1.
+    -s SERVICES_TO_TEST, --services-to-test=SERVICES_TO_TEST
+                          Comma separated list of service types to test
+                          Defaults to: HTTPServer,OPENDAP
+    -e SERVICE_EXTENSIONS, --service-extensions=SERVICE_EXTENSIONS
+                          A list of service types and and for each a list of extensions to be tried.
+                          The format is as in the following:
+                          OPENDAP:.html,.dds;OtherSvc:.dat,.asc
+                          Defaults to: OPENDAP:.html,.dds,.das,.asc,.ascii,.dods
+    -p PUBLIC_SERVICE_EXTENSIONS, --public-service-extensions=PUBLIC_SERVICE_EXTENSIONS
+                          Service types and extensions for which public access
+                          is expected, e.g., OPENDAP:.html,.dds
+                          Defaults to: OPENDAP:.html
+                          This option is used to prevent access to a dataset being classed as
+                          inconsistent if, e.g., the .html resource is publicly accessible but other
+                          resources are not accessible using the account used for testing.
+    -f FORBIDDEN_SERVICE_EXTENSIONS, --forbidden-service-extensions=FORBIDDEN_SERVICE_EXTENSIONS
+                          Service types and extensions for which no access is
+                          expected, e.g., OPENDAP:.asc
+                          This is of use, e.g., if a security configuration allows access to the .asc
+                          resources but not the equivalent .ascii resources.
+
+  thredds_test_file_access [options] list_file_path
+    list_file_path        Path of a file containing a list of URLs, of which the accessibility of each
+                          is to be tested
+    -a NUMBER, --expect-allowed=NUMBER
+                          Number of datasets for which access is expected to be allowed. After the
+                          access checks are made, this number is compared with the number found; if
+                          they are not the same an error message printed and the tool returns status
+                          value 1.
+    -x NUMBER, --expect-denied=NUMBER
+                          Number of datasets for which access is expected to be denied. After the
+                          access checks are made, this number is compared with the number found; if
+                          they are not the same an error message printed and the tool returns status
+                          value 1.
+
+Return statuses::
+  thredds_test_url_access
+    0 - if the resource is accessible
+    1  -if the resource is not accessible
+
+  thredds_test_catalog_access
+    1 - if the expect-allowed and/or expect-denied options were specified and the result did not match
+        the option value.
+    2 - if the user interrupted test
+    0 - otherwise
+
+  thredds_test_file_access
+    1 - if the expect-allowed and/or expect-denied options were specified and the result did not match
+        the option value.
+    2 - if the user interrupted test
+    0 - otherwise
+
+Scripted Testing
+================
+In addition to the command line tools described above, Python test scripts may also be written. The
+tests should call any of the functions::
+  thredds_security_test.lib.catalog_access.check_catalog
+  thredds_security_test.lib.file_access.check_files
+  thredds_security_test.lib.httpget.check_url
+
+See thredds_security_test.test.test_access.py for an example of usage.
