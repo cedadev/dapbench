@@ -12,10 +12,11 @@ Catalogs the test data available on esg-dev1.
 
 import random
 
-from net.grinder.script.Grinder import grinder
-
-properties = grinder.properties.getPropertySubset('dapbench')
-
+try:
+    from net.grinder.script.Grinder import grinder
+    properties = grinder.properties.getPropertySubset('dapbench')
+except ImportError:
+    properties = {'dataDir': '.'}
 
 DAP_BASES = {
     'pydap': 'http://esg-dev1.badc.rl.ac.uk:8081/ta_20101129',
@@ -73,4 +74,33 @@ def make_dataset_list(server):
     for d in DATA_FILES:
         yield '%s/%s' % (base_url, d)
 
+def write_dataset_list(server, filename):
+    """
+    Write the dataset list to a file.
+
+    Use this to bootstrap tests when they move to taking a listing
+    file as configuration.
+
+    """
+    listing = make_dataset_list(server)
+    fh = open(filename, 'w')
+    for ds in listing:
+        print >>fh, ds
+    fh.close()
+
+def load_dataset_list(filename):
+    """
+    Load a list of datasets from a file
+    """
+    dataset_list = []
+    fh = open(filename)
+    for line in fh:
+        dataset_list.append(line.strip())
+
+    return dataset_list
+
+if __name__ == '__main__':
+    import sys
     
+    server, filename = sys.argv[1:]
+    write_dataset_list(server, filename)

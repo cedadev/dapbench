@@ -20,7 +20,7 @@ chunk = 1024*512
 
 properties = grinder.properties.getPropertySubset('dapbench.')
 
-server = properties['server']
+dataset_list = properties['datasets']
 
 def streamed_get(url):
     buf = jarray.zeros(chunk, 'b')
@@ -37,7 +37,7 @@ streamed_get = test1.wrap(streamed_get)
 
 class TestRunner:
     def __call__(self):
-        dataset_url = random.choice(list(data_urls.make_dataset_list(server)))
+        dataset_url = random.choice(data_urls.load_dataset_list(dataset_list))
         grinder.logger.output('Downloading %s' % dataset_url)
         result = streamed_get(dataset_url)
         grinder.logger.output('Transfered %d bytes' % result)

@@ -16,12 +16,12 @@ import data_urls
 properties = grinder.properties.getPropertySubset('dapbench.')
 
 variable = properties['variable']
-server = properties['server']
+datasets = properties['datasets']
 time_len = int(properties['time_len'])
 req_sample_size = properties['req_sample_size']
 
 partition_dict = {'time': time_len}
-dataset_list = list(data_urls.make_dataset_list(server))
+datasets = data_urls.load_dataset_list(datasets)
 
 test = Test(1, "Parallel slice request")
 def call_request(req):

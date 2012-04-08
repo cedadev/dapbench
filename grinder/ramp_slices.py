@@ -21,9 +21,9 @@ import data_urls
 
 # The BADC test datasets contain variable 'ta' with 1440 timepoints
 variable = properties['variable']
-server = properties['server']
+dataset_list = properties['datasets']
 
-dataset_url = random.choice(list(data_urls.make_dataset_list(server)))
+dataset_url = random.choice(data_urls.load_dataset_lists(dataset_list))
 ds = Dataset(dataset_url)
 variable = ds.variables[variable]
 
