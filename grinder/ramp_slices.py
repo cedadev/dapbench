@@ -23,7 +23,7 @@ import data_urls
 variable = properties['variable']
 dataset_list = properties['datasets']
 
-dataset_url = random.choice(data_urls.load_dataset_lists(dataset_list))
+dataset_url = random.choice(data_urls.load_dataset_list(dataset_list))
 ds = Dataset(dataset_url)
 variable = ds.variables[variable]
 
