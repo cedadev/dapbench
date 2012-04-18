@@ -21,13 +21,24 @@ class DapbenchRun(object):
 
     def __init__(self, logdir):
         self.logdir = logdir
-
+        self._read_data2()
 
     def _read_data2(self):
-        self.results = {}
+        concats = {}
+        cc_keys = {}
+
         for test, target, datafile in self._find_datafiles():
-            self.results[(test, target)] = results_to_df(datafile)
-            #!TODO: ...
+            df = results_to_df(datafile)
+            if test not in concats:
+                concats[test] = [df['Test']]
+                cc_keys[test] = ['Test']
+
+            concats[test].append(df['Test time'])
+            cc_keys[test].append(target)
+
+        self.results = {}
+        for test in concats:
+            self.results[test] = pandas.concat(concats[test], keys=cc_keys[test], axis=1)
 
     def _read_data(self):
         #!DEPRECATED
@@ -50,10 +61,6 @@ class DapbenchRun(object):
             if mo:
                 test, target = mo.groups()
                 yield (test, target, op.join(self.logdir, logfile))
-
-    def mean(self, test):
-        means = {}
-        for test, target in self.
 
 
 def results_to_df(grinder_datafile):
