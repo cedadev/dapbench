@@ -37,6 +37,7 @@ streamed_get = test1.wrap(streamed_get)
 
 class TestRunner:
     def __call__(self):
+        grinder.logger.output('Selecting dataset from %s' % dataset_list)
         dataset_url = random.choice(data_urls.load_dataset_list(dataset_list))
         grinder.logger.output('Downloading %s' % dataset_url)
         result = streamed_get(dataset_url)

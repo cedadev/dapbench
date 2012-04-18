@@ -18,10 +18,10 @@ properties = grinder.properties.getPropertySubset('dapbench.')
 variable = properties['variable']
 datasets = properties['datasets']
 time_len = int(properties['time_len'])
-req_sample_size = properties['req_sample_size']
+req_sample_size = int(properties['req_sample_size'])
 
 partition_dict = {'time': time_len}
-datasets = data_urls.load_dataset_list(datasets)
+dataset_list = data_urls.load_dataset_list(datasets)
 
 test = Test(1, "Parallel slice request")
 def call_request(req):
@@ -41,13 +41,18 @@ class TestRunner(object):
 
         grinder.logger.output('Thread %d selecting %s' % (self.thread,
                                                           self.dataset_url))
+        grinder.logger.output('Thread %d has partitions %s' % (self.thread,
+                                                               partition_dict))
+        grinder.logger.output('Thread %d has variable of shape %s' % (self.thread, self.variable.shape))
 
     def __call__(self):
         grinder.sleep(5000*self.thread, 0)
         grinder.logger.output('Thread %d starting requests' % self.thread)
 
         # Each thread randomly selects a sample requests
-        requests = random.choice(list(self.requests), req_sample_size)
+        reqs = list(self.requests)
+        grinder.logger.output('Sampling %d requests from %d' % (req_sample_size, len(reqs)))
+        requests = random.sample(reqs, req_sample_size)
         
         for req in requests:
             grinder.logger.output('Requesting %s' % req)

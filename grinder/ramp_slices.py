@@ -36,6 +36,8 @@ partitions = [int(x) for x in properties['partitions'].split(',')]
 class Instrumented(object):
     next_test = 1
     def __init__(self, partition):
+        grinder.logger.output('Selected dataset %s' % dataset_url)
+
         self.test = Test(Instrumented.next_test, 
                          'Partition into %d slices' % partition)
 
