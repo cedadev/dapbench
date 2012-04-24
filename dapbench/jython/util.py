@@ -11,6 +11,8 @@ Utilities for running jython performance tests.
 """
 
 from dapbench.jython.netcdf import Dataset
+import subprocess as S
+import os, signal
 
 def partition_shape(shape, partitions):
     """
@@ -121,3 +123,31 @@ class LockedIterator(object):
         finally:
             self.lock.release()
 
+
+class NmonProcess(object):
+    """
+    Class encapsulating an nmon process.
+
+    """
+    
+    def __init__(self, run_name, logdir):
+        self.run_name = run_nane
+        self.logdir = logdir
+        self.pid = None
+
+    def start(self, interval=30, extra_args=[]):
+        if self.pid is not None:
+            raise RuntimeError("Cannot start nmon.  Process is already running")
+
+        # Run nmon for ever
+        cmd = 'nmon -f -r %s -s%d -m %s -c -1 %s' % (
+            self.run_name, interval, self.logdir, ' '.join(extra_args)
+            )
+        p = S.Popen(cmd, shell=True, stdout=S.PIPE)
+        self.pid = int(p.stdout.read().strip())
+
+    def stop(self):
+        if self.pid is None:
+            raise RuntimeError("Cannot stop nmon.  Process not running")
+        os.kill(self.pid, signal.SIGUSR2)
+        self.pid = None
