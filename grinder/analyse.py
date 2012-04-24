@@ -12,15 +12,16 @@ import re
 
 import pandas
 
-RUNS = [
-    ('run-0ms', 0),
-        ('run-5ms', 5),
-    ('run-10ms', 10),
-    ('run-15ms', 15),
-    ('run-20ms', 20),
-    ]
+# RUNS = [
+#     ('run-0ms', 0),
+#     ('run-5ms', 5),
+#     ('run-10ms', 10),
+#     ('run-15ms', 15),
+#     ('run-20ms', 20),
+#     ]
+RUNS = [('parallel-0ms', 0)]
 
-class DapbenchRun(object):
+class Run(object):
     """
     Analyse the results of a run stored in a single logdirectory
     """
@@ -29,11 +30,11 @@ class DapbenchRun(object):
         self.logdir = logdir
         self._read_data()
 
-        if label:
+        if label is not None:
             self.label = label
         else:
-            mo = re.match(r'.*run-(.*)$', logdir)
-            self.label = mo.group(1)
+            mo = re.match(r'.*run-(\d+)ms$', logdir)
+            self.label = int(mo.group(1))
 
     def _read_data(self):
         concats = {}
@@ -68,14 +69,14 @@ class DapbenchRun(object):
 
 
 
-class DapbenchRunset(object):
+class RunSet(object):
     """
     A collection of runs with common targets.
     """
-
+    
     def __init__(self):
         self.runs = []
-
+        
     def add(self, run):
         self.runs.append(run)
 
@@ -89,6 +90,83 @@ class DapbenchRunset(object):
         return pandas.concat(means, axis=1)
 
 
+class ResultView(object):
+    """
+    A view on a RunSet that exposes partucular results.
+
+    Abstract base class.
+
+    """
+    test = None
+    
+    def __init__(self, runset):
+        self.runset = runset
+        self._setup()
+        self._gather()
+
+    def _setup(self):
+        pass
+        
+    def _gather(self):
+        """
+        Gather all tests, calling self.add_result() for each result
+        """
+        for run in self.runset.runs:
+            for test, result in run.results.items():
+                if self._is_viewed(run.label, test, result):
+                    self._add_result(run.label, test, result)
+
+    def _is_viewed(self, run_label, test, result):
+        return test == self.test
+
+    def _add_result(self, run_label, test, result):
+        raise NotImplementedError
+    
+    def frame(self):
+        raise NotImplementedError
+
+    def plot(self):
+        raise NotImplementedError
+
+class BasicDownloadView(ResultView):
+    test = 'basic_download'
+
+    def _setup(self):
+        self.means = []
+
+    def _add_result(self, run_label, test, result):
+        df = result.drop(['Test'], axis=1)
+        df.columns = pandas.MultiIndex.from_tuples([(run_label, x) for x in df.columns])
+        self.means.append(df.mean())
+
+    def frame(self):
+        return pandas.concat(self.means).unstack()
+
+    def plot(self):
+        ax = self.frame().plot(style='o-')
+        ax.set_xlabel('Server delay (ms)')
+        ax.set_ylabel('Download time (ms)')
+        ax.set_title('Basic Download test')
+        return ax
+
+
+class RampSlicesView(ResultView):
+    test = 'ramp_slices'
+
+    def _setup(self):
+        self.totals = []
+
+    def _add_result(self, run_label, test, result):
+        df = result.groupby('Test').mean()
+        df.columns = pandas.MultiIndex.from_tuples([(run_label, x) for x in df.columns])
+        self.totals.append(df)
+
+    def frame(self):
+        return pandas.concat(self.totals, axis=1).select(lambda x: x>100)
+
+    def plot(self):
+        ax = self.frame().plot(style='o-')
+        return ax
 
 def results_to_df(grinder_datafile):
     df1 = pandas.read_csv(grinder_datafile, sep=r',\s*')
@@ -118,10 +196,15 @@ def read_data(logdir):
 
 
 
-
 if __name__ == '__main__':
-    rs = DapbenchRunset()
-    for logdir, label in RUNS:
-        rs.add(DapbenchRun(logdir, label))
+    import sys
 
-    M = rs.mean('ramp_slices')
+    parent_dir, = sys.argv[1:]
+    
+    rs = RunSet()
+
+    for logdir in os.listdir(parent_dir):
+        rs.add(Run(op.join(parent_dir, logdir)))
+
+    bdv = BasicDownloadView(rs)
+    ramp = RampSlicesView(rs)
