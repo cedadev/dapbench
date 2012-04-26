@@ -124,14 +124,15 @@ class LockedIterator(object):
             self.lock.release()
 
 
-class NmonProcess(object):
+class RemoteNmonProcess(object):
     """
     Class encapsulating an nmon process.
 
     """
     
-    def __init__(self, run_name, logdir):
-        self.run_name = run_nane
+    def __init__(self, host, run_name, logdir):
+        self.host = host
+        self.run_name = run_name
         self.logdir = logdir
         self.pid = None
 

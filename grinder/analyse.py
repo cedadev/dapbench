@@ -11,15 +11,15 @@ from glob import glob
 import re
 
 import pandas
+import matplotlib.pyplot as plt
+from matplotlib import rcParams
 
-# RUNS = [
-#     ('run-0ms', 0),
-#     ('run-5ms', 5),
-#     ('run-10ms', 10),
-#     ('run-15ms', 15),
-#     ('run-20ms', 20),
-#     ]
-RUNS = [('parallel-0ms', 0)]
+from dapbench.nmon import NmonOutput
+
+RAMP_SLICES = [15,30,60,120,240,480,720,1440]
+
+rcParams['legend.fontsize'] = 'small'
+
 
 class Run(object):
     """
@@ -53,6 +53,8 @@ class Run(object):
         for test in concats:
             self.results[test] = pandas.concat(concats[test], keys=cc_keys[test], axis=1)
 
+        self._read_nmon()
+
     def mean(self):
         ret = {}
         for test in self.results:
@@ -66,6 +68,15 @@ class Run(object):
             if mo:
                 test, target = mo.groups()
                 yield (test, target, op.join(self.logdir, logfile))
+
+    def _read_nmon(self):
+        try:
+            nmon_file = glob(op.join(self.logdir, '*.nmon'))[0]
+        except IndexError:
+            self.nmon = None
+        else:
+            self.nmon = NmonOutput(nmon_file)
+        
 
 
 
@@ -142,13 +153,32 @@ class BasicDownloadView(ResultView):
     def frame(self):
         return pandas.concat(self.means).unstack()
 
-    def plot(self):
-        ax = self.frame().plot(style='o-')
+    def plot(self, **kwargs):
+        f = self.frame()
+        # Scale to seconds
+        f = f / 1000
+        ax = f.plot(style='o-', **kwargs)
         ax.set_xlabel('Server delay (ms)')
-        ax.set_ylabel('Download time (ms)')
+        ax.set_ylabel('Download time (s)')
         ax.set_title('Basic Download test')
         return ax
 
+
+class DownloadView(BasicDownloadView):
+    test2 = 'ramp_slices'
+
+    def _is_viewed(self, run_label, test, result):
+        return test in [self.test, self.test2]
+
+    def _add_result(self, run_label, test, result):
+        if test == self.test:
+            super(self.__class__, self)._add_result(run_label, test, result)
+        elif test == self.test2:
+            df = result[result['Test'] <= 3].groupby('Test').sum().stack()
+            df.index = pandas.MultiIndex.from_tuples([(run_label, '%s_%d' % (b, a)) for (a, b) in df.index])
+            self.means.append(df)
+        else:
+            raise ValueError("unknown test %s" % test)
 
 class RampSlicesView(ResultView):
     test = 'ramp_slices'
@@ -164,9 +194,59 @@ class RampSlicesView(ResultView):
     def frame(self):
         return pandas.concat(self.totals, axis=1).select(lambda x: x>100)
 
-    def plot(self):
-        ax = self.frame().plot(style='o-')
+    def plot(self, **kwargs):
+        f = self.frame()
+        # Change index to number of slices
+        f.index = RAMP_SLICES
+        # Scale values to seconds
+        f = f / 1000
+        ax = f.select(lambda (x, y): y=='pydap', axis=1).plot(style='o-', **kwargs)
+        f.select(lambda (x, y): y=='tds', axis=1).plot(style='o--', ax=ax, **kwargs)
+        ax.set_ylabel('Time to download (s)')
+        ax.set_xlabel('Number of slices')
+        ax.set_title('Ramp slices test')
         return ax
+
+
+class ParallelSlicesView(ResultView):
+    test = 'parallel_slices'
+
+    def _setup(self):
+        self.data = []
+        
+    def _add_result(self, run_label, test, result):
+        df = result.drop(['Test'], axis=1)
+        df.columns = pandas.MultiIndex.from_tuples([(run_label, x) for x in df.columns])
+        self.data.append(df)
+
+    def frame(self):
+        return pandas.concat(self.data, axis=1)
+
+    def plot(self, **kwargs):
+        f = self.frame()
+        f = f / 1000
+        sample = [0, 10, 20, 40]
+        f = f.select(lambda (x, y): x in sample, axis=1)
+        fig = plt.figure()
+        g = f.groupby(level=0, axis=1)
+        for delay in g.groups:
+            i = sample.index(delay)+1
+            ax = fig.add_subplot(2, 2, i)
+            ax.set_title('%dms delay' % delay)
+            if i in [3, 4]:
+                ax.set_xlabel('Request duration (s)')
+            if i in [1, 4]:
+                ax.set_ylabel('# requests')
+            for key in g.groups[delay]:
+                f[key].hist(axes=ax, range=(0, 10), bins=50,
+                            histtype='step',
+                            label=key[1],
+                            **kwargs
+                    )
+            ax.legend()
+        return fig
+
+
 
 def results_to_df(grinder_datafile):
     df1 = pandas.read_csv(grinder_datafile, sep=r',\s*')
@@ -206,5 +286,7 @@ if __name__ == '__main__':
     for logdir in os.listdir(parent_dir):
         rs.add(Run(op.join(parent_dir, logdir)))
 
-    bdv = BasicDownloadView(rs)
-    ramp = RampSlicesView(rs)
+    basic_download_view = BasicDownloadView(rs)
+    ramp_view = RampSlicesView(rs)
+    parallel_view = ParallelSlicesView(rs)
+    download_view = DownloadView(rs)
